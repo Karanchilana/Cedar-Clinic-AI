@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cedar Clinic · Front desk</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+        <rect width="32" height="32" rx="9" />
+        <path d="M16 6 L23 16 H19 L24 23 H8 L13 16 H9 Z" />
+        <rect x="15" y="23" width="2" height="4" />
+      </svg>
+      <div>
+        <strong>Cedar Clinic</strong>
+        <span>Front desk</span>
+      </div>
+    </div>
+
+    <div class="agent" id="agent">
+      <span class="dot"></span>
+      <span id="agentText">Maya is available</span>
+    </div>
+
+    <button class="try-call" id="tryCall">
+      <svg viewBox="0 0 24 24"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1z"/></svg>
+      Try Call
+    </button>
+  </header>
+
+  <main>
+    <section class="overview">
+      <div>
+        <p class="eyebrow">Schedule</p>
+        <h1 id="today"></h1>
+      </div>
+      <dl class="stats">
+        <div><dt>Doctors</dt><dd id="statDoctors">–</dd></div>
+        <div><dt>Open slots</dt><dd id="statOpen">–</dd></div>
+        <div><dt>Booked</dt><dd id="statBooked">–</dd></div>
+      </dl>
+    </section>
+
+    <div class="grid">
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Doctors</h2>
+          <div class="days" id="days"></div>
+        </div>
+        <ul class="doctors" id="doctors"></ul>
+      </section>
+
+      <div class="side">
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Appointments</h2>
+            <span class="muted" id="apptCount"></span>
+          </div>
+          <ul class="appointments" id="appointments"></ul>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Transcript</h2>
+            <span class="live" id="liveTag">Live</span>
+          </div>
+          <div class="transcript" id="transcript">
+            <p class="empty">Conversation shows up here once a call starts.</p>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <div class="phone" id="phone" data-state="idle">
+    <div class="screen">
+      <div class="statusbar">
+        <span id="clock"></span>
+        <span class="bars"><i></i><i></i><i></i><i></i></span>
+      </div>
+
+      <div class="caller">
+        <div class="avatar"><span>M</span><i></i><i></i></div>
+        <h3>Maya</h3>
+        <p>Cedar Clinic</p>
+        <p class="call-status" id="callStatus">Calling…</p>
+      </div>
+
+      <canvas id="wave" width="560" height="96"></canvas>
+
+      <div class="phone-transcript" id="phoneTranscript"></div>
+
+      <div class="card" id="card"></div>
+
+      <div class="controls">
+        <button class="ctrl" id="muteBtn">
+          <svg viewBox="0 0 24 24" class="mic-on"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V21h2v-3.1a7 7 0 0 0 6-6.9z"/></svg>
+          <svg viewBox="0 0 24 24" class="mic-off"><path d="M19 11h-2c0 .7-.2 1.4-.4 2l1.5 1.5c.6-1 .9-2.2.9-3.5zm-4 .2V5a3 3 0 0 0-5.9-.8zM4.3 3 3 4.3l6 6V11a3 3 0 0 0 4.5 2.6l1.6 1.6A5 5 0 0 1 7 11H5a7 7 0 0 0 6 6.9V21h2v-3.1c.9-.1 1.8-.4 2.6-.9l4.1 4.1L21 19.7z"/></svg>
+          <span>Mute</span>
+        </button>
+        <button class="ctrl end" id="endBtn">
+          <svg viewBox="0 0 24 24"><path d="M12 9c-1.6 0-3.1.3-4.6.7v3.1c0 .4-.2.7-.6.9-1 .5-1.9 1.1-2.6 1.8-.2.2-.4.3-.7.3s-.5-.1-.7-.3L.3 13.1A1 1 0 0 1 0 12.4c0-.3.1-.5.3-.7A16.9 16.9 0 0 1 12 7c4.5 0 8.6 1.7 11.7 4.7.2.2.3.4.3.7 0 .3-.1.5-.3.7l-2.5 2.4c-.2.2-.4.3-.7.3s-.5-.1-.7-.3c-.8-.7-1.6-1.3-2.6-1.8-.3-.2-.6-.5-.6-.9V9.7C15.1 9.3 13.6 9 12 9z"/></svg>
+          <span>End</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
